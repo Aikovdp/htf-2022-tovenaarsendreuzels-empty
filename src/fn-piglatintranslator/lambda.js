@@ -52,9 +52,30 @@ async function sendToSendGrid(message) {
 }
 
 function translateToPigLatin(message) {
-    // Translate
+    let translation = ""
+    let textBuffer = ""
+    message.split("").forEach(char => {
+        if (char.match(/\W/)) {
+            translation += translateWordToPigLatin(textBuffer) 
+            textBuffer = ""
+            translation += char
+        } else {
+            textBuffer += char
+        }
+    });
 
-    return message;
+    if (textBuffer) {
+        translation += translateWordToPigLatin(textBuffer)
+    }
+
+    return translation
+}
+
+function translateWordToPigLatin(word) {
+    if (word.length <= 1) return word;
+    translatedWord = word.substring(1) + word.charAt(0) + "ay"
+
+    return translatedWord;
 }
 
 async function isMessageInEnglish(message) {
