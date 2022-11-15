@@ -10,6 +10,8 @@ const {
 const {
   ComprehendClient,
   DetectDominantLanguageCommand,
+  DetectDominantLanguageRequestFilterSensitiveLog,
+  DetectDominantLanguageResponseFilterSensitiveLog,
 } = require("@aws-sdk/client-comprehend");
 
 /*
@@ -28,7 +30,6 @@ exports.handler = async (event) => {
 
   // Step 1: Translate the received message to PigLatin
   // Tip: Log the translated message so you can view it in CloudWatch
-
 
   // Step 2: Send the message to the correct Event Rule
 };
@@ -58,40 +59,72 @@ async function sendToSendGrid(message) {
 }
 
 function translateToPigLatin(message) {
-    let translation = ""
-    let textBuffer = ""
-    message.split("").forEach(char => {
-        if (char.match(/\W/)) {
-            translation += translateWordToPigLatin(textBuffer) 
-            textBuffer = ""
-            translation += char
-        } else {
-            textBuffer += char
-        }
-    });
-
-    if (textBuffer) {
-        translation += translateWordToPigLatin(textBuffer)
+  let translation = "";
+  let textBuffer = "";
+  message.split("").forEach((char) => {
+    if (char.match(/\W/)) {
+      translation += translateWordToPigLatin(textBuffer);
+      textBuffer = "";
+      translation += char;
+    } else {
+      textBuffer += char;
     }
+  });
 
-    return translation
+  if (textBuffer) {
+    translation += translateWordToPigLatin(textBuffer);
+  }
+
+  return translation;
 }
 
 function translateWordToPigLatin(word) {
-    if (word.length <= 1) return word;
-    translatedWord = word.substring(1) + word.charAt(0) + "ay"
+  if (word.length <= 1) return word;
+  translatedWord = word.substring(1) + word.charAt(0) + "ay";
 
-    return translatedWord;
+  return translatedWord;
 }
 
 async function isMessageInEnglish(message) {
   // Check if the given message is in English or not using AWS Comprehend
-
-  return true;
+  const comprend = new ComprehendClient({ region: process.env.AWS_REGION });
+  try {
+    comprend
+      .send(
+        new DetectDominantLanguageCommand({
+          Text: message,
+        })
+      )
+      .then((data) => {
+        console.log(data);
+        if (data.Languages[0].LanguageCode == "en") {
+          return true;
+        } else {
+          return false;
+        }
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function translateToEnglish(message, sourceLanguage) {
   // Translate the message to English using AWS Translate
-
-  return message;
+  const translate = new TranslateClient({ region: process.env.AWS_REGION });
+  try {
+    translate
+      .send(
+        new TranslateTextCommand({
+          Text: message,
+          SourceLanguageCode: sourceLanguage,
+          TargetLanguageCode: "en",
+        })
+      )
+      .then((data) => {
+        console.log(data);
+        return data.TranslatedText;
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
