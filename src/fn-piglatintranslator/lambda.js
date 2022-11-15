@@ -23,15 +23,15 @@ Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/clien
 exports.handler = async (event) => {
   // Log the event so you can view it in CloudWatch
   console.log(event);
-
+  let message = event.detail.message
   // Step 3: Check what language the message is, translate to English if needed
-  if (!(await isMessageInEnglish(event.message))) {
-    event.message = await translateMessage(event.message);
+  if (!(await isMessageInEnglish(message))) {
+    message = await translateMessage(message);
   }
 
   // Step 1: Translate the received message to PigLatin
   // Tip: Log the translated message so you can view it in CloudWatch
-  let translatedMessage = translateToPigLatin(event.message);
+  let translatedMessage = translateToPigLatin(message);
 
   // Step 2: Send the message to the correct Event Rule
   let destination = event.detail.sendTo;
