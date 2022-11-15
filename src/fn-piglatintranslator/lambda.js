@@ -27,8 +27,9 @@ exports.handler = async (event) => {
   console.log(event);
 
   // Step 3: Check what language the message is, translate to English if needed
-  if (!await isMessageInEnglish(event.message)) {
+  if (!(await isMessageInEnglish(event.message))) {
     event.message = await translateMessage(event.message);
+  }
 
   // Step 1: Translate the received message to PigLatin
   // Tip: Log the translated message so you can view it in CloudWatch
@@ -60,26 +61,39 @@ async function sendToSQS(message) {
     translatedMessage: message,
     teamName: process.env.TeamName, // Team name is given as an environment variable
   };
+
+  const client = new SQSClient({ region: process.env.AWS_REGION });
+  try {
+    const data = await client.send(
+      new SendMessageCommand({
+        QueueUrl: process.env.SQSQueueUrl,
+        MessageBody: JSON.stringify(messageToSend),
+      })
+    );
+    console.log("Success", data.MessageId);
+  } catch (error) {
+    console.log("Error", error);
+  }
 }
 
 async function sendToTeams(message) {
-    // The message that is understood by the EventBridge rule
-    let messageToSend = {
-        translatedMessage: message,
-        teamName: process.env.TeamName // Team name is given as an environment variable
-    };
+  // The message that is understood by the EventBridge rule
+  let messageToSend = {
+    translatedMessage: message,
+    teamName: process.env.TeamName, // Team name is given as an environment variable
+  };
 
-    let eventBridgeParams = {
-        Entries: [
-            {
-                Detail: JSON.stringify(messageToSend),
-                DetailType: "SendToTeams",
-                Resources: [ process.env.TeamName ],
-                Source: "HTF22",
-                EventBusName: process.env.EventBusName
-            }
-        ]
-    }
+  let eventBridgeParams = {
+    Entries: [
+      {
+        Detail: JSON.stringify(messageToSend),
+        DetailType: "SendToTeams",
+        Resources: [process.env.TeamName],
+        Source: "HTF22",
+        EventBusName: process.env.EventBusName,
+      },
+    ],
+  };
 }
 
 async function sendToSendGrid(message) {
