@@ -21,6 +21,8 @@ The installation file can be found here:
 You'll need to login using your credentials in order to be able to use the AWS CLI.
 https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
 
+**Note** Use "eu-west-1" as the region when configuring your CLI.
+
 ### Install AWS SAM
 The AWS SAM (Serverless Application Model) makes it easier to create and manage serverless applications in the AWS cloud.
 This is not a necessity, but can improve the speed and quality of building your applications.
