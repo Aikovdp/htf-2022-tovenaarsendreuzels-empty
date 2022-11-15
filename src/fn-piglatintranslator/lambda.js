@@ -47,11 +47,23 @@ async function sendToSQS(message) {
 }
 
 async function sendToTeams(message) {
-  // The message that is understood by the EventBridge rule
-  let messageToSend = {
-    translatedMessage: message,
-    teamName: process.env.TeamName, // Team name is given as an environment variable
-  };
+    // The message that is understood by the EventBridge rule
+    let messageToSend = {
+        translatedMessage: message,
+        teamName: process.env.TeamName // Team name is given as an environment variable
+    };
+
+    let eventBridgeParams = {
+        Entries: [
+            {
+                Detail: JSON.stringify(messageToSend),
+                DetailType: "SendToTeams",
+                Resources: [ process.env.TeamName ],
+                Source: "HTF22",
+                EventBusName: process.env.EventBusName
+            }
+        ]
+    }
 }
 
 async function sendToSendGrid(message) {
