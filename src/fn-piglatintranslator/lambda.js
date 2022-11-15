@@ -10,8 +10,6 @@ const {
 const {
   ComprehendClient,
   DetectDominantLanguageCommand,
-  DetectDominantLanguageRequestFilterSensitiveLog,
-  DetectDominantLanguageResponseFilterSensitiveLog,
 } = require("@aws-sdk/client-comprehend");
 
 /*
