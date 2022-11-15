@@ -150,7 +150,7 @@ async function getLanguageCode(message) {
   } catch (error) {
     console.log(error);
   }
-}f
+}
 
 async function translateToEnglish(message, sourceLanguage) {
   // Translate the message to English using AWS Translate
