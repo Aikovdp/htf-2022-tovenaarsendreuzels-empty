@@ -81,17 +81,24 @@ async function sendToTeams(message) {
     teamName: process.env.TeamName, // Team name is given as an environment variable
   };
 
-  let eventBridgeParams = {
-    Entries: [
-      {
-        Detail: JSON.stringify(messageToSend),
-        DetailType: "SendToTeams",
-        Resources: [process.env.TeamName],
-        Source: "HTF22",
-        EventBusName: process.env.EventBusName,
-      },
-    ],
-  };
+    let eventBridgeParams = {
+        Entries: [
+            {
+                Detail: JSON.stringify(messageToSend),
+                DetailType: "SendToTeams",
+                Resources: [ process.env.TeamName ],
+                Source: "HTF22",
+                EventBusName: process.env.EventBusName
+            }
+        ]
+    }
+    let client = new EventBridgeClient();
+
+    try {
+      await client.send(new PutEventsCommand(eventBridgeParams));
+    } catch (error) {
+      console.error(error)
+    }
 }
 
 async function sendToSendGrid(message) {
