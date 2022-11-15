@@ -27,6 +27,8 @@ exports.handler = async (event) => {
   console.log(event);
 
   // Step 3: Check what language the message is, translate to English if needed
+  if (!await isMessageInEnglish(event.message)) {
+    event.message = await translateMessage(event.message);
 
   // Step 1: Translate the received message to PigLatin
   // Tip: Log the translated message so you can view it in CloudWatch
