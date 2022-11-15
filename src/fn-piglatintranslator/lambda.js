@@ -25,8 +25,9 @@ exports.handler = async (event) => {
   console.log(event);
   let message = event.detail.message
   // Step 3: Check what language the message is, translate to English if needed
-  if (!(await isMessageInEnglish(message))) {
-    message = await translateToEnglish(message);
+  const language = await getLanguageCode(message)
+  if (language !== "en") {
+    message = await translateToEnglish(message, language);
   }
 
   // Step 1: Translate the received message to PigLatin
@@ -132,45 +133,37 @@ function translateWordToPigLatin(word) {
   return translatedWord;
 }
 
-async function isMessageInEnglish(message) {
+async function getLanguageCode(message) {
   // Check if the given message is in English or not using AWS Comprehend
-  const comprend = new ComprehendClient({ region: process.env.AWS_REGION });
+  const comprend = new ComprehendClient({
+    region: process.env.AWS_REGION
+  });
   try {
-    comprend
-      .send(
-        new DetectDominantLanguageCommand({
-          Text: message,
-        })
-      )
-      .then((data) => {
-        console.log(data);
-        if (data.Languages[0].LanguageCode == "en") {
-          return true;
-        } else {
-          return false;
-        }
-      });
+    const data = await comprend.send(
+      new DetectDominantLanguageCommand({
+        Text: message,
+      })
+    )
+
+    console.log(data)
+    return data.Languages[0].LanguageCode
   } catch (error) {
     console.log(error);
   }
-}
+}f
 
 async function translateToEnglish(message, sourceLanguage) {
   // Translate the message to English using AWS Translate
   const translate = new TranslateClient({ region: process.env.AWS_REGION });
   try {
-    translate
-      .send(
+    const { TranslatedText } = await translate.send(
         new TranslateTextCommand({
           Text: message,
           SourceLanguageCode: sourceLanguage,
           TargetLanguageCode: "en",
         })
       )
-      .then((data) => {
-        console.log(data);
-        return data.TranslatedText;
-      });
+    return TranslatedText
   } catch (error) {
     console.log(error);
   }
