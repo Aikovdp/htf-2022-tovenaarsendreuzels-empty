@@ -67,7 +67,7 @@ async function sendToSQS(message) {
   try {
     const data = await client.send(
       new SendMessageCommand({
-        QueueUrl: process.env.SQSQueueUrl,
+        QueueUrl: process.env.SQSName,
         MessageBody: JSON.stringify(messageToSend),
       })
     );
