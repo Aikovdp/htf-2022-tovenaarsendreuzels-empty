@@ -26,7 +26,7 @@ exports.handler = async (event) => {
   let message = event.detail.message
   // Step 3: Check what language the message is, translate to English if needed
   if (!(await isMessageInEnglish(message))) {
-    message = await translateMessage(message);
+    message = await translateToEnglish(message);
   }
 
   // Step 1: Translate the received message to PigLatin
