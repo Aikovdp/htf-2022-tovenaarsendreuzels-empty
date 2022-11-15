@@ -107,31 +107,26 @@ async function sendToTeams(message) {
 
 async function sendToSendGrid(message) {
   // The format of the message can be found in cfn-students.yaml, you need 2 more attributes than in the "sendToTeams" function
-  sgMail.setApiKey(process.env.SendGridApiKey);
-  const msg = {
-    personalizations: [
+  let messageToSend = {
+    translatedMessage: message,
+    teamName: process.env.TeamName, // Team name is given as an environment variable
+  };
+
+  let eventBridgeParams = {
+    Entries: [
       {
-        to: [
-          {
-            email: "aiko.vandeputte@student.hogent.be",
-          },
-        ],
-      },
-    ],
-    from: {
-      email: "roy.barnveld@student.hogent.be",
-    },
-    subject: "Translated message",
-    content: [
-      {
-        type: "text/plain",
-        value: message,
+        Detail: JSON.stringify(messageToSend),
+        DetailType: "SendToSendGrid",
+        Resources: [process.env.TeamName],
+        Source: "HTF22",
+        EventBusName: process.env.EventBusName,
       },
     ],
   };
+  let client = new EventBridgeClient();
+
   try {
-    await sgMail.send(msg);
-    console.log("Email sent", msg);
+    await client.send(new PutEventsCommand(eventBridgeParams));
   } catch (error) {
     console.error(error);
   }
