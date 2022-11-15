@@ -23,9 +23,9 @@ Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/clien
 exports.handler = async (event) => {
   // Log the event so you can view it in CloudWatch
   console.log(event);
-  let message = event.detail.message
+  let message = event.detail.message;
   // Step 3: Check what language the message is, translate to English if needed
-  const language = await getLanguageCode(message)
+  const language = await getLanguageCode(message);
   if (language !== "en") {
     message = await translateToEnglish(message, language);
   }
@@ -82,24 +82,24 @@ async function sendToTeams(message) {
     teamName: process.env.TeamName, // Team name is given as an environment variable
   };
 
-    let eventBridgeParams = {
-        Entries: [
-            {
-                Detail: JSON.stringify(messageToSend),
-                DetailType: "SendToTeams",
-                Resources: [ process.env.TeamName ],
-                Source: "HTF22",
-                EventBusName: process.env.EventBusName
-            }
-        ]
-    }
-    let client = new EventBridgeClient();
+  let eventBridgeParams = {
+    Entries: [
+      {
+        Detail: JSON.stringify(messageToSend),
+        DetailType: "SendToTeams",
+        Resources: [process.env.TeamName],
+        Source: "HTF22",
+        EventBusName: process.env.EventBusName,
+      },
+    ],
+  };
+  let client = new EventBridgeClient();
 
-    try {
-      await client.send(new PutEventsCommand(eventBridgeParams));
-    } catch (error) {
-      console.error(error)
-    }
+  try {
+    await client.send(new PutEventsCommand(eventBridgeParams));
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function sendToSendGrid(message) {
@@ -136,17 +136,17 @@ function translateWordToPigLatin(word) {
 async function getLanguageCode(message) {
   // Check if the given message is in English or not using AWS Comprehend
   const comprend = new ComprehendClient({
-    region: process.env.AWS_REGION
+    region: process.env.AWS_REGION,
   });
   try {
     const data = await comprend.send(
       new DetectDominantLanguageCommand({
         Text: message,
       })
-    )
+    );
 
-    console.log(data)
-    return data.Languages[0].LanguageCode
+    console.log(data);
+    return data.Languages[0].LanguageCode;
   } catch (error) {
     console.log(error);
   }
@@ -157,13 +157,13 @@ async function translateToEnglish(message, sourceLanguage) {
   const translate = new TranslateClient({ region: process.env.AWS_REGION });
   try {
     const { TranslatedText } = await translate.send(
-        new TranslateTextCommand({
-          Text: message,
-          SourceLanguageCode: sourceLanguage,
-          TargetLanguageCode: "en",
-        })
-      )
-    return TranslatedText
+      new TranslateTextCommand({
+        Text: message,
+        SourceLanguageCode: sourceLanguage,
+        TargetLanguageCode: "en",
+      })
+    );
+    return TranslatedText;
   } catch (error) {
     console.log(error);
   }
