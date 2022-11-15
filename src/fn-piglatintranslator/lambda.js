@@ -33,9 +33,11 @@ exports.handler = async (event) => {
   // Step 1: Translate the received message to PigLatin
   // Tip: Log the translated message so you can view it in CloudWatch
   let translatedMessage = translateToPigLatin(message);
+  console.log(translatedMessage);
 
   // Step 2: Send the message to the correct Event Rule
   let destination = event.detail.sendTo;
+  console.log(destination);
   if (destination == "SQS") {
     // Send to SQS
     sendToSQS(translatedMessage);
