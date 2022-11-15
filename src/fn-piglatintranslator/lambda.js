@@ -11,6 +11,7 @@ const {
   ComprehendClient,
   DetectDominantLanguageCommand,
 } = require("@aws-sdk/client-comprehend");
+const sgMail = require("@sendgrid/mail");
 
 /*
 Documentation for AWS calls
@@ -106,6 +107,34 @@ async function sendToTeams(message) {
 
 async function sendToSendGrid(message) {
   // The format of the message can be found in cfn-students.yaml, you need 2 more attributes than in the "sendToTeams" function
+  sgMail.setApiKey(process.env.SendGridApiKey);
+  const msg = {
+    personalizations: [
+      {
+        to: [
+          {
+            email: "aiko.vandeputte@student.hogent.be",
+          },
+        ],
+      },
+    ],
+    from: {
+      email: "roy.barnveld@student.hogent.be",
+    },
+    subject: "Translated message",
+    content: [
+      {
+        type: "text/plain",
+        value: message,
+      },
+    ],
+  };
+  try {
+    await sgMail.send(msg);
+    console.log("Email sent", msg);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function translateToPigLatin(message) {

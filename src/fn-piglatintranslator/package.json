@@ -12,6 +12,7 @@
         "@aws-sdk/client-comprehend": "^3.204.0",
         "@aws-sdk/client-eventbridge": "^3.204.0",
         "@aws-sdk/client-sqs": "^3.204.0",
-        "@aws-sdk/client-translate": "^3.204.0"
+        "@aws-sdk/client-translate": "^3.204.0",
+        "@sendgrid/mail": "^7.7.0"
     }
 }
